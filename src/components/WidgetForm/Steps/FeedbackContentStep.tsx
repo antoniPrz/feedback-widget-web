@@ -1,17 +1,32 @@
 import { ArrowLeft } from 'phosphor-react';
+import { FormEvent, useState } from 'react';
 import { FeedbackType, feedbackTypes } from '..';
 import { CloseButton } from '../../CloseButton';
+import { ScreenshotButton } from '../../ScreenshotButton';
 
 interface FeedbackContentStepProps {
+  onFeedbackSent: () => void;
   feedbackTypeSelected: FeedbackType;
   onfeedbackRestartRequested: () => void;
 }
 
 export function FeedbackContentStep({
+  onFeedbackSent,
   feedbackTypeSelected,
   onfeedbackRestartRequested,
 }: FeedbackContentStepProps) {
+  const [comment, setComment] = useState('');
+  const [screenshot, setScreenshot] = useState<string | null>(null);
+
   const feedbackTypeInfo = feedbackTypes[feedbackTypeSelected];
+
+  function sendFeedback(e: FormEvent) {
+    e.preventDefault();
+    console.log({ screenshot, comment });
+
+    setComment('');
+    onFeedbackSent();
+  }
 
   return (
     <>
@@ -34,11 +49,27 @@ export function FeedbackContentStep({
         <CloseButton />
       </header>
 
-      <form className='my-4 w-full'>
+      <form onSubmit={sendFeedback} className='my-4 w-full'>
         <textarea
           placeholder='cuente con detalle su inconveniente'
-          className='min-w-[304px] w-full min-h-[112px] text-sm placeholder-zinc-400 text-zinc-100 border-zinc-600 bg-transparent rounded-md'
+          className='min-w-[304px] w-full min-h-[112px] text-sm placeholder-zinc-400 text-zinc-100 border-zinc-600 bg-transparent rounded-md focus:border-brand-500 focus:ring-brand-500 facus:ring-1  focus:outline-none resize-none  scrollbar-thumb-zinc-700 scrollbar-track-transparent scrollbar-thin'
+          onChange={(e) => setComment(e.target.value)}
+          value={comment}
         />
+        <footer className='flex mt-2 gap-2'>
+          <ScreenshotButton
+            screenshot={screenshot}
+            onScreenshotTook={setScreenshot}
+          />
+          <button
+            type='submit'
+            className='flex justify-center  items-center  flex-1 bg-brand-500 rounded-md  text-sm hover:bg-brand-300 p-2  border-transparent  focus:ring-2 focus:ring-offset-2 focus:ring-offset-zinc-900 focus:ring-brand-500 focus:outline-none transition-colors disabled:opacity-50 disabled:hover:bg-brand-500'
+            // onClick={sendFeedback}
+            disabled={comment.length === 0}
+          >
+            Enviar feedback
+          </button>
+        </footer>
       </form>
     </>
   );
